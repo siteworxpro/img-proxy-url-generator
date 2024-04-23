@@ -21,7 +21,7 @@ func main() {
 
 	app := &cli.App{
 		Name:           "img-proxy-url-generator",
-		Description:    "URL Generator for the img proxy service",
+		Usage:          "URL Generator for the img proxy service",
 		DefaultCommand: "generate",
 		Version:        Version,
 		Commands: []*cli.Command{

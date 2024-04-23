@@ -96,7 +96,7 @@ https://i.fooo.com/q-CfgLiuHTXDiZg7vBsUbZB3nkhzfsPgNrK0x20b878/h:200/rot:90/sm:1
 ```
 
 
-generate a url a format
+generate a url with a specified format
 ```bash
 ./imgproxy --image "local:///my-super-image.png" --format bmp -p h:200
 

@@ -6,7 +6,7 @@ img proxy [docs](https://docs.imgproxy.net/usage/processing)
 
 you can optionally hard code a path prefix on build
 ```shell
-go build --ldflags="-X 'git.s.int/rrise/imgproxy/generator.PathPrefix=s3://mybucket'"
+go build --ldflags="-X 'github.com/siteworxpro/img-proxy-url-generator/generator.PathPrefix=s3://mybucket'"
 ```
 
 ## config file

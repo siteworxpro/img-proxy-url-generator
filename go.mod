@@ -1,4 +1,4 @@
-module git.s.int/rrise/imgproxy
+module github.com/siteworxpro/img-proxy-url-generator
 
 go 1.21.1
 

@@ -10,7 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"git.s.int/rrise/imgproxy/printer"
+	"github.com/siteworxpro/img-proxy-url-generator/printer"
 	"io"
 	"strings"
 )

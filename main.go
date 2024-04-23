@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"git.s.int/rrise/imgproxy/generator"
-	"git.s.int/rrise/imgproxy/printer"
 	"github.com/bigkevmcd/go-configparser"
+	"github.com/siteworxpro/img-proxy-url-generator/generator"
+	"github.com/siteworxpro/img-proxy-url-generator/printer"
 	"github.com/urfave/cli/v2"
 	"os"
 )
@@ -20,7 +20,7 @@ func main() {
 	pr := printer.NewPrinter()
 
 	app := &cli.App{
-		Name:           "imgproxy",
+		Name:           "img-proxy-url-generator",
 		Description:    "URL Generator for the img proxy service",
 		DefaultCommand: "generate",
 		Version:        Version,

@@ -2,5 +2,5 @@
 main
 imgproxy
 *.cfg
-img-proxy
 dist/
+img-proxy-url-generator

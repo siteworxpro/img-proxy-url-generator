@@ -32,7 +32,10 @@ func (g *Generator) generateBaseAesEncUrl(file []byte) (string, error) {
 	mode := cipher.NewCBCEncrypter(c, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], data)
 
-	encryptedURL := g.generateBase64Url(ciphertext)
+	encryptedURL, err := g.generateBase64Url(ciphertext)
+	if err != nil {
+		return "", err
+	}
 
 	return "enc/" + encryptedURL, nil
 }

@@ -1,25 +1,29 @@
 # img-proxy url generator
 
+
+[host](https://docs.imgproxy.net/installation) an instance of img-proxy
+
 img proxy [docs](https://docs.imgproxy.net/usage/processing)
 
 ## build
 
-you can optionally hard code a path prefix on build
+you can optionally hard code a path prefix when building
 ```shell
 go build --ldflags="-X 'github.com/siteworxpro/img-proxy-url-generator/generator.PathPrefix=s3://mybucket'"
 ```
 
 ## config file
 
-###### params 
+### params 
 
 [img-proxy]
 - `key` sha256 hmac key
 - `salt` sha256 hmac salt
 - `host` img-proxy server hostname
 - `encryption-key` aes encryption key
-- `plain-url` send plain filename. bypasses all encoding
+- `plain-url` bypasses all encoding and uses plain filename
 
+example config file
 ```ini
 [img-proxy]
 key=2c...47
@@ -29,7 +33,7 @@ encryption-key=1c...0b
 plain-url=1
 ```
 
-## usage
+## usage examples
 
 generate a plain url with an insecure signature
 ```ini
@@ -73,7 +77,7 @@ salt=3f...4a
 https://i.fooo.com/NIColt6GBjtbquJXAtEMMsptARPw0CdeduEcu-S9Voc/raw:1/bG9jYWw6Ly9teS1zdXBlci1pbWFnZS5wbmc
 ```
 
-generate an encrypted url
+generate an encrypted url with a signature
 ```ini
 [img-proxy]
 host=https://i.fooo.com
@@ -88,7 +92,7 @@ encryption-key=1c...0b
 https://i.fooo.com/m3YtaMSgL86qCnfKCnS2i9_vLRmJSogdBx1o86cWbuc/raw:1/enc/F6FAWktv2SAFe5UQwMme0pB6JwKQJVtTI_6Xx-PUfKANdQk0pD1I13NPnv0CvkFT
 ```
 
-generate a url with params
+generate with params
 ```bash
 ./imgproxy --image "local:///my-super-image.png" -p h:200 -p rot:90
 

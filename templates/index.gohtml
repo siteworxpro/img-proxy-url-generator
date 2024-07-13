@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="flex flex-row flex-wrap justify-around text-center">
+    {{ range .Images }}
+        <div style="border: 1px solid #222222;" class="w-1/5 p-5 m-5 flex flex-wrap justify-center">
+            <div>
+                <a href="{{ .Download }}" target="_blank">
+                    <img style="background-color: #222222" src="{{ .Url }}" alt="{{ .Name }}"/>
+                </a>
+            </div>
+            <div class="w-full">
+                {{ .S3Path }}
+            </div>
+        </div>
+    {{ end }}
+</div>
+<div class="p-10 text-right">
+    <a href="/?next={{ .StartAfter }}">Next</a>
+</div>
+</body>
+</html>

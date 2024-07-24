@@ -3,7 +3,7 @@ module github.com/siteworxpro/img-proxy-url-generator
 go 1.22.5
 
 require (
-	github.com/aws/aws-sdk-go v1.54.19
+	github.com/aws/aws-sdk-go v1.55.1
 	github.com/bigkevmcd/go-configparser v0.0.0-20240624060122-ccd05f93a9d2
 	github.com/charmbracelet/lipgloss v0.12.1
 	github.com/urfave/cli/v2 v2.27.2

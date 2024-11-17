@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"io"
 )
 
@@ -12,6 +13,26 @@ func pkcs7pad(data []byte, blockSize int) []byte {
 	padLen := blockSize - len(data)%blockSize
 	padding := bytes.Repeat([]byte{byte(padLen)}, padLen)
 	return append(data, padding...)
+}
+
+func (g *Generator) Decrypt(s string) (string, error) {
+	c, err := aes.NewCipher(g.config.encryptionKeyBin)
+	if err != nil {
+		return "", err
+	}
+
+	decoded, err := base64.RawURLEncoding.DecodeString(s)
+	if err != nil {
+		return "", err
+	}
+
+	iv := decoded[:aes.BlockSize]
+	cryptText := decoded[aes.BlockSize:]
+	cbc := cipher.NewCBCDecrypter(c, iv)
+
+	cbc.CryptBlocks(cryptText, cryptText)
+
+	return string(cryptText), err
 }
 
 func (g *Generator) generateBaseAesEncUrl(file []byte) (string, error) {

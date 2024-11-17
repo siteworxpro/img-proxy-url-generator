@@ -106,3 +106,31 @@ generate a url with a specified format
 
 https://i.fooo.com/UMkz4OUNw6P9ShLdewuvW3ValMgCt263vZzU5gN57WQ/h:200/sm:1/enc/ECYxMeVBTjRxB7F-jdQ7W_-Fnv4YbmSJIKie-Hdtxd9vsmEKjU1YuWVSzdN97Mod.bmp
 ```
+## decryption
+
+if you need to decrypt a url you have already created just copy the encrypted portion of the url
+
+```shell
+./imgproxy decrypt -u ECYxMeVBTjRxB7F-jdQ7W_-Fnv4YbmSJIKie-Hdtxd9vsmEKjU1YuWVSzdN97Mod
+```
+
+## web service
+you can also serve request via a web request
+
+```shell
+./imgproxy server
+```
+
+```shell
+curl --location 'http://localhost:8080/generate' \
+--header 'Content-Type: application/json' \
+--data '{
+    "image": "s3://my.image.bucket/C81A0923.jpg",
+    "params": [
+        "q:40",
+        "w:400"
+    ],
+    "format": "bmp"
+}'
+```
+`https://i.fooo.com/UMkz4OUNw6P9ShLdewuvW3ValMgCt263vZzU5gN57WQ/h:200/sm:1/enc/ECYxMeVBTjRxB7F-jdQ7W_-Fnv4YbmSJIKie-Hdtxd9vsmEKjU1YuWVSzdN97Mod.bmp`

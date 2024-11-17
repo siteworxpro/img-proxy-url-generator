@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/bigkevmcd/go-configparser"
 	"github.com/siteworxpro/img-proxy-url-generator/aws"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var keyBin, saltBin []byte
@@ -20,6 +22,12 @@ var imgGenerator *generator.Generator
 var Version = "v0.0.0"
 
 var awsConfig aws.Config
+
+type jsonRequest struct {
+	Image  string   `json:"image"`
+	Params []string `json:"params"`
+	Format string   `json:"format"`
+}
 
 func main() {
 
@@ -52,16 +60,40 @@ func main() {
 		},
 	})
 
-	_, err := os.Stat("./templates")
-	if !os.IsNotExist(err) {
-		commands = append(commands, &cli.Command{
-			Name:  "server",
-			Usage: "Start a webserver for s3 file browsing",
-			Action: func(c *cli.Context) error {
-				return startServer(c, pr)
+	commands = append(commands, &cli.Command{
+		Name:  "server",
+		Usage: "Start a webserver for s3 file browsing",
+		Action: func(c *cli.Context) error {
+			return startServer(c, pr)
+		},
+	})
+
+	commands = append(commands, &cli.Command{
+		Name:  "decrypt",
+		Usage: "decrypt an image url contents",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "url",
+				Aliases:  []string{"u"},
+				Required: true,
 			},
-		})
-	}
+		},
+		Action: func(c *cli.Context) error {
+			err := initGenerator(c.String("config"))
+			if err != nil {
+				return err
+			}
+
+			plain, err := imgGenerator.Decrypt(c.String("url"))
+			if err != nil {
+				return err
+			}
+
+			pr.LogSuccess(plain)
+
+			return nil
+		},
+	})
 
 	app := &cli.App{
 		Name:           "img-proxy-url-generator",
@@ -82,7 +114,7 @@ func main() {
 		},
 	}
 
-	err = app.Run(os.Args)
+	err := app.Run(os.Args)
 	if err != nil {
 		pr.LogError(err.Error())
 
@@ -96,41 +128,73 @@ func startServer(c *cli.Context, p *printer.Printer) error {
 		return err
 	}
 
-	awsClient := aws.NewClient(&awsConfig)
+	_, err = os.Stat("./templates")
+	if !os.IsNotExist(err) {
+		awsClient := aws.NewClient(&awsConfig)
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			contToken := r.URL.Query().Get("next")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		contToken := r.URL.Query().Get("next")
+			var next *string
+			if contToken == "" {
+				next = nil
+			} else {
+				next = &contToken
+			}
 
-		var next *string
-		if contToken == "" {
-			next = nil
-		} else {
-			next = &contToken
-		}
+			contents, err := awsClient.ListBucketContents(next)
+			if err != nil {
+				return
+			}
 
-		contents, err := awsClient.ListBucketContents(next)
-		if err != nil {
+			for i, content := range contents.Images {
+				contents.Images[i].Url, _ = signURL("s3://"+awsConfig.Bucket+"/"+content.Name, []string{"pr:sq"}, "")
+				contents.Images[i].Download, _ = signURL("s3://"+awsConfig.Bucket+"/"+content.Name, []string{""}, "")
+			}
+
+			file, _ := os.ReadFile("./templates/index.gohtml")
+
+			tmpl := template.Must(template.New("index").Parse(string(file)))
+
+			err = tmpl.Execute(w, contents)
+
+			if err != nil {
+				println(err.Error())
+			}
+		})
+	}
+
+	http.HandleFunc("/generate", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			w.WriteHeader(404)
+
 			return
 		}
 
-		for i, content := range contents.Images {
-			contents.Images[i].Url, _ = signURL("s3://"+awsConfig.Bucket+"/"+content.Name, []string{"pr:sq"}, "")
-			contents.Images[i].Download, _ = signURL("s3://"+awsConfig.Bucket+"/"+content.Name, []string{""}, "")
-		}
+		bodyContents := make([]byte, r.ContentLength)
+		_, _ = r.Body.Read(bodyContents)
 
-		file, _ := os.ReadFile("./templates/index.gohtml")
-
-		tmpl := template.Must(template.New("index").Parse(string(file)))
-
-		err = tmpl.Execute(w, contents)
-
+		jr := jsonRequest{}
+		err = json.Unmarshal(bodyContents, &jr)
 		if err != nil {
 			println(err.Error())
+			w.WriteHeader(500)
+			return
 		}
+
+		url, err := signURL(jr.Image, jr.Params, jr.Format)
+		if err != nil {
+			println(err.Error())
+			w.WriteHeader(500)
+			return
+		}
+
+		log.Println(fmt.Sprintf("%s - [%s] - (%s)", jr.Image, strings.Join(jr.Params, ","), url))
+
+		_, _ = w.Write([]byte(url))
 	})
 
 	p.LogSuccess("Starting http server on port 8080. http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
 
 	return nil
 }

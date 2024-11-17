@@ -1,7 +1,9 @@
 syntax = "proto3";
 
 option go_package = "github.com/siteworxpro/img-proxy-url-generator/grpc";
-option php_namespace = "Siteworx\\Library\\Integrations\\ImgProxy";
+option php_namespace = "SomeNamespace\\ImgProxy";
+option php_metadata_namespace = "SomeNamespace\\ImgProxy\\Metadata";
+
 
 message UrlRequest {
   string image = 1;

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.3
-// source: grpc/imgurl.proto
+// source: imgurl.proto
 
 package grpc
 
@@ -117,5 +117,5 @@ var Generator_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "grpc/imgurl.proto",
+	Metadata: "imgurl.proto",
 }

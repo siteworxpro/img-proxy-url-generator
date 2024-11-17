@@ -1,22 +1,25 @@
+syntax = "proto3";
+
 option go_package = "github.com/siteworxpro/img-proxy-url-generator/grpc";
+option php_namespace = "Siteworx\\Library\\Integrations\\ImgProxy";
 
 message UrlRequest {
- required string image = 1;
- repeated string params = 2;
- optional Format format = 3;
+  string image = 1;
+  repeated string params = 2;
+  optional Format format = 3;
 }
 
 enum Format {
-  JPG = 1;
-  PNG = 2;
-  BMP = 3;
-  WEBP = 4;
-  GIF = 5;
-  ICO = 6;
+  JPG = 0;
+  PNG = 1;
+  BMP = 2;
+  WEBP = 3;
+  GIF = 4;
+  ICO = 5;
 }
 
 message UrlResponse {
-  required string url = 1;
+  string url = 1;
 }
 
 service Generator {

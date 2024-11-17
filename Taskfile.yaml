@@ -1,7 +1,10 @@
 version: '3'
 
 tasks:
+  proto-build-php:
+    cmds:
+      - protoc --php_out=. --plugin=protoc-gen-grpc=bins/opt/grpc_php_plugin grpc/imgurl.proto
   proto-build:
     cmds:
-      - protoc --go_out=.  --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative grpc/imgurl.proto
+      - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative grpc/imgurl.proto
     silent: true

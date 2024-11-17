@@ -1,4 +1,4 @@
-FROM siteworxpro/golang:latest AS build
+FROM siteworxpro/golang:1.23.3 AS build
 
 WORKDIR /app
 
@@ -12,10 +12,10 @@ RUN go mod tidy && go build -o imgproxy .
 
 FROM alpine AS runtime
 
-EXPOSE 8080
+EXPOSE 9000
 
 WORKDIR /app
 
 COPY --from=build /app/imgproxy /app/imgproxy
 
-ENTRYPOINT ["/app/imgproxy", "server"]
+ENTRYPOINT ["/app/imgproxy", "grpc"]

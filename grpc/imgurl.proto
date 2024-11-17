@@ -1,0 +1,24 @@
+option go_package = "github.com/siteworxpro/img-proxy-url-generator/grpc";
+
+message UrlRequest {
+ required string image = 1;
+ repeated string params = 2;
+ optional Format format = 3;
+}
+
+enum Format {
+  JPG = 1;
+  PNG = 2;
+  BMP = 3;
+  WEBP = 4;
+  GIF = 5;
+  ICO = 6;
+}
+
+message UrlResponse {
+  required string url = 1;
+}
+
+service Generator {
+  rpc Generate (UrlRequest) returns (UrlResponse) {}
+}

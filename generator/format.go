@@ -18,7 +18,8 @@ const (
 )
 
 func (g *Generator) StringToFormat(string string) (Format, error) {
-	switch strings.ToLower(string) {
+	s := strings.ToLower(string)
+	switch s {
 	case "jpg":
 		return JPG, nil
 	case "jpeg":
@@ -33,6 +34,8 @@ func (g *Generator) StringToFormat(string string) (Format, error) {
 		return GIF, nil
 	case "ico":
 		return ICO, nil
+	case "def":
+	case "default":
 	case "":
 		return DEF, nil
 	}

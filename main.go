@@ -6,10 +6,13 @@ import (
 	"github.com/bigkevmcd/go-configparser"
 	"github.com/siteworxpro/img-proxy-url-generator/aws"
 	"github.com/siteworxpro/img-proxy-url-generator/generator"
+	proto "github.com/siteworxpro/img-proxy-url-generator/grpc"
 	"github.com/siteworxpro/img-proxy-url-generator/printer"
 	"github.com/urfave/cli/v2"
+	"google.golang.org/grpc"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -62,9 +65,45 @@ func main() {
 
 	commands = append(commands, &cli.Command{
 		Name:  "server",
-		Usage: "Start a webserver for s3 file browsing",
+		Usage: "Start a webserver for s3 file browsing and the web service",
 		Action: func(c *cli.Context) error {
 			return startServer(c, pr)
+		},
+	})
+
+	commands = append(commands, &cli.Command{
+		Name:  "grpc",
+		Usage: "Start a grpc service",
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:     "port",
+				Aliases:  []string{"p"},
+				Usage:    "Port to listen on",
+				Required: false,
+				Value:    9000,
+			},
+		},
+		Action: func(c *cli.Context) error {
+			err := initGenerator(c.String("config"))
+
+			if err != nil {
+				return err
+			}
+
+			s := grpc.NewServer()
+			addr := fmt.Sprintf(":%d", c.Int("port"))
+			println("listening on", addr)
+			lis, err := net.Listen("tcp", addr)
+			if err != nil {
+				log.Fatalf("failed to listen: %v", err)
+			}
+			proto.RegisterGeneratorServer(s, proto.NewService(imgGenerator))
+			err = s.Serve(lis)
+			if err != nil {
+				log.Fatalf("failed to serve: %v", err)
+			}
+
+			return nil
 		},
 	})
 

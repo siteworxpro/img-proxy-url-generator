@@ -1,4 +1,4 @@
-FROM siteworxpro/golang:1.23.3 AS build
+FROM siteworxpro/golang:1.23.4 AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ ENV CGO_ENABLED=0
 
 RUN go mod tidy && go build -o imgproxy .
 
-FROM alpine AS runtime
+FROM alpine:latest AS runtime
 
 EXPOSE 9000
 

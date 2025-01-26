@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/siteworxpro/img-proxy-url-generator/config"
 	"github.com/siteworxpro/img-proxy-url-generator/generator"
 	"log"
 	"strings"
@@ -13,8 +14,13 @@ type GeneratorService struct {
 	imgGenerator *generator.Generator
 }
 
-func NewService(imgGenerator *generator.Generator) *GeneratorService {
-	return &GeneratorService{imgGenerator: imgGenerator}
+func NewService(config *config.Config) (*GeneratorService, error) {
+	g, err := generator.NewGenerator(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GeneratorService{imgGenerator: g}, nil
 }
 
 func (s *GeneratorService) Generate(c context.Context, r *UrlRequest) (*UrlResponse, error) {

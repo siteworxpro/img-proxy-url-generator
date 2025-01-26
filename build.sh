@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-go install
+go mod tidy
 
 for distro in $(go tool dist list)
 do

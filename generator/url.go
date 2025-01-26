@@ -3,42 +3,33 @@ package generator
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/siteworxpro/img-proxy-url-generator/config"
 	"strings"
 )
 
 type Generator struct {
-	config Config
-}
-
-type Config struct {
-	Salt             []byte
-	saltBin          []byte
-	Key              []byte
-	keyBin           []byte
-	Host             string
-	EncryptionKey    *string
-	encryptionKeyBin []byte
-	PlainUrl         bool
+	keyBin        []byte
+	salt          []byte
+	encryptionKey []byte
 }
 
 var PathPrefix string
 
-func NewGenerator(config Config) (*Generator, error) {
+func NewGenerator(config *config.Config) (*Generator, error) {
 	var err error
 
 	gen := new(Generator)
-	gen.config = config
 
-	if gen.config.keyBin, err = hex.DecodeString(string(gen.config.Key)); err != nil {
+	if gen.keyBin, err = hex.DecodeString(string(config.Generator.Key)); err != nil {
 		return nil, err
 	}
 
-	if gen.config.saltBin, err = hex.DecodeString(string(gen.config.Salt)); err != nil {
+	if gen.salt, err = hex.DecodeString(string(config.Generator.Salt)); err != nil {
 		return nil, err
 	}
 
-	if gen.config.EncryptionKey != nil && *gen.config.EncryptionKey != "" {
-		if gen.config.encryptionKeyBin, err = hex.DecodeString(*gen.config.EncryptionKey); err != nil {
+	if config.Generator.EncryptionKey != "" {
+		if gen.encryptionKey, err = hex.DecodeString(config.Generator.EncryptionKey); err != nil {
 			return nil, fmt.Errorf("key expected to be hex-encoded string")
 		}
 	}
@@ -62,9 +53,9 @@ func (g *Generator) GenerateUrl(file string, params []string, format Format) (st
 
 	var url string
 	var err error
-	if g.config.PlainUrl {
+	if config.GetConfig().Generator.PlainUrl {
 		url, _ = g.generatePlainUrl(file)
-	} else if g.config.encryptionKeyBin != nil {
+	} else if g.encryptionKey != nil {
 		url, err = g.generateBaseAesEncUrl([]byte(file))
 	} else {
 		url, _ = g.generateBase64Url([]byte(file))
@@ -82,5 +73,5 @@ func (g *Generator) GenerateUrl(file string, params []string, format Format) (st
 
 	signature := g.generateSignature(path)
 
-	return fmt.Sprintf("%s/%s%s", g.config.Host, signature, path), nil
+	return fmt.Sprintf("%s/%s%s", config.GetConfig().Generator.Host, signature, path), nil
 }

@@ -16,7 +16,7 @@ func pkcs7pad(data []byte, blockSize int) []byte {
 }
 
 func (g *Generator) Decrypt(s string) (string, error) {
-	c, err := aes.NewCipher(g.config.encryptionKeyBin)
+	c, err := aes.NewCipher(g.encryptionKey)
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +36,7 @@ func (g *Generator) Decrypt(s string) (string, error) {
 }
 
 func (g *Generator) generateBaseAesEncUrl(file []byte) (string, error) {
-	c, err := aes.NewCipher(g.config.encryptionKeyBin)
+	c, err := aes.NewCipher(g.encryptionKey)
 	if err != nil {
 		return "", err
 	}

@@ -37,6 +37,10 @@ func (s *Service) ListBucketContents(continuationToken *string) (*BucketList, er
 	}
 
 	for _, item := range v2.Contents {
+		if *item.Size == 0 {
+			continue
+		}
+
 		image := Image{
 			Name:   *item.Key,
 			S3Path: "s3://" + s.bucket + "/" + *item.Key,

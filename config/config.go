@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	initializeOnce sync.Once
-	Generator      *generatorConfig
+	Generator      *GeneratorConfig
 	Aws            *awsConfig
 	Redis          *redisConfig
 }

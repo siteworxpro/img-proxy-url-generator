@@ -5,7 +5,7 @@ import (
 	"github.com/bigkevmcd/go-configparser"
 )
 
-type generatorConfig struct {
+type GeneratorConfig struct {
 	Salt          []byte
 	Key           []byte
 	Host          string
@@ -13,11 +13,11 @@ type generatorConfig struct {
 	PlainUrl      bool
 }
 
-func getGeneratorConfig(p *configparser.ConfigParser) (*generatorConfig, error) {
+func getGeneratorConfig(p *configparser.ConfigParser) (*GeneratorConfig, error) {
 	var config string
 	var err error
 
-	gc := &generatorConfig{}
+	gc := &GeneratorConfig{}
 	if !p.HasSection("img-proxy") {
 		return nil, fmt.Errorf("config error - [img-proxy] config required")
 	}

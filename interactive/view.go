@@ -22,7 +22,9 @@ func (m Model) View() string {
 	}
 
 	for _, field := range *m.selectedParams {
-		output += field.Input().View() + "\n\n"
+		for _, f := range field.Input() {
+			output += f.View() + "\n\n"
+		}
 	}
 
 	if *m.url == "" {
@@ -31,8 +33,8 @@ func (m Model) View() string {
 
 	params := make([]string, 0)
 	for _, field := range *m.selectedParams {
-		if field.value() != "" {
-			params = append(params, field.key()+":"+field.value())
+		if field.Value() != "" {
+			params = append(params, field.Key()+":"+field.Value())
 		}
 	}
 

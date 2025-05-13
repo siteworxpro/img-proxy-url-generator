@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/siteworxpro/img-proxy-url-generator/config"
 	"github.com/siteworxpro/img-proxy-url-generator/generator"
+	"github.com/siteworxpro/img-proxy-url-generator/interactive/params"
 	"github.com/urfave/cli/v2"
 )
 
@@ -23,10 +24,10 @@ type Model struct {
 }
 
 type UrlParam interface {
-	value() string
-	display() string
-	key() string
-	Input() huh.Field
+	Value() string
+	Display() string
+	Key() string
+	Input() []huh.Field
 }
 
 func InitialModel(c *cli.Context) Model {
@@ -68,13 +69,18 @@ func (m Model) initialFields() []huh.Field {
 	fields := make([]huh.Field, 0)
 
 	options := []UrlParam{
-		NewHeight(),
-		NewWidth(),
+		params.NewHeight(),
+		params.NewWidth(),
+		params.NewResize(),
+		params.NewMinWidth(),
+		params.NewMinHeight(),
+		params.NewZoom(),
+		params.NewEnlarge(),
 	}
 
 	var huhOptions []huh.Option[UrlParam]
 	for _, option := range options {
-		huhOptions = append(huhOptions, huh.NewOption[UrlParam](option.display(), option))
+		huhOptions = append(huhOptions, huh.NewOption[UrlParam](option.Display(), option))
 	}
 
 	fields = append(fields,
@@ -105,6 +111,9 @@ func (m Model) initialFields() []huh.Field {
 			huh.NewOption[generator.Format]("JPEG", generator.JPG),
 			huh.NewOption[generator.Format]("PNG", generator.PNG),
 			huh.NewOption[generator.Format]("BMP", generator.BMP),
+			huh.NewOption[generator.Format]("WEBP", generator.WEBP),
+			huh.NewOption[generator.Format]("GIF", generator.GIF),
+			huh.NewOption[generator.Format]("ICO", generator.ICO),
 			huh.NewOption[generator.Format]("Default", generator.DEF),
 		).
 		Key("format").

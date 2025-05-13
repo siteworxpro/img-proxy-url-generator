@@ -16,12 +16,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "tab":
 			if m.focusField != nil {
-				// get the index of the current field
+
 				index := -1
 
+				selectedParamFields := make([]huh.Field, 0)
+				for _, field := range *m.selectedParams {
+					for _, f := range field.Input() {
+						selectedParamFields = append(selectedParamFields, f)
+					}
+				}
+
 				if m.inParamsFields {
-					for i, field := range *m.selectedParams {
-						if field.Input() == m.focusField {
+					for i, field := range selectedParamFields {
+						if field == m.focusField {
 							index = i
 							break
 						}
@@ -41,15 +48,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				// if the field is the last one, and we have params selected go to the param fields
-				if !m.inParamsFields && index == len(m.Fields)-1 && len(*m.selectedParams) > 0 {
+				if !m.inParamsFields && index == len(m.Fields)-1 && len(selectedParamFields) > 0 {
 					m.focusField.Blur()
 					m.inParamsFields = true
-					paramsFields := *m.selectedParams
-					m.focusField = paramsFields[0].Input()
+					paramsFields := selectedParamFields
+					m.focusField = paramsFields[0]
 					m.focusField.Focus()
 
 					// if the field is the last one, and we have params selected go to the first non params field
-				} else if m.inParamsFields && index == len(*m.selectedParams)-1 {
+				} else if m.inParamsFields && index == len(selectedParamFields)-1 {
 					m.focusField.Blur()
 					m.inParamsFields = false
 					m.focusField = m.Fields[0]
@@ -64,8 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// otherwise, go to the next field
 					m.focusField.Blur()
 					if m.inParamsFields {
-						paramsFields := *m.selectedParams
-						m.focusField = paramsFields[index+1].Input()
+						m.focusField = selectedParamFields[index+1]
 					} else {
 						m.focusField = m.Fields[index+1]
 					}

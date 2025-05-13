@@ -2,35 +2,45 @@ package interactive
 
 import (
 	"fmt"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/lipgloss"
 )
 
 func (m Model) View() string {
-	output := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("5")).
-		Background(lipgloss.Color("0")).
-		Bold(true).
-		Underline(true).
-		Render("Welcome to the img-proxy URL Generator!") + "\n\n"
+
+	fieldStyle := lipgloss.NewStyle().PaddingBottom(1)
 
 	if m.err != nil {
-		return output + "Error: " + m.err.Error() + "\n" + "Press Ctrl+C to exit.\n"
+		return lipgloss.
+			NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("red")).
+			Background(lipgloss.Color("black")).
+			Render("Error: " + m.err.Error() + "\n" + "Press Ctrl+C to exit.")
 	}
 
+	output := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("5")).
+		PaddingBottom(1).
+		Bold(true).
+		Underline(true).
+		Render("Welcome to the img-proxy URL Generator!") + "\n"
+
 	for _, field := range m.Fields {
-		output += field.View() + "\n\n"
+		output += fieldStyle.Render("\n" + field.View())
 	}
 
 	for _, field := range *m.selectedParams {
 		for _, f := range field.Input() {
-			output += f.View() + "\n\n"
+			output += fieldStyle.Render("\n" + f.View())
 		}
 	}
 
 	if *m.url == "" {
-		return output + help()
+		return output + "\n" + m.renderHelp()
 	}
 
+	// Generate the URL
 	params := make([]string, 0)
 	for _, field := range *m.selectedParams {
 		if field.Value() != "" {
@@ -45,15 +55,17 @@ func (m Model) View() string {
 		Foreground(lipgloss.Color("#0000ff")).
 		Render(url))
 
-	output += help()
+	output += m.renderHelp()
 
 	return output
 }
 
-func help() string {
-	return lipgloss.
-		NewStyle().
-		Inline(true).
-		Foreground(lipgloss.Color("#123456")).
-		Render("Ctrl+C | Esc: exit * Tab: Next Field * Sft+Tab: Prev Field * Space: Select\n")
+func (m Model) renderHelp() string {
+	return m.help.ShortHelpView([]key.Binding{
+		key.NewBinding(key.WithKeys("ctrl+c", "esc"), key.WithHelp("esc", "quit")),
+		key.NewBinding(key.WithKeys("up"), key.WithHelp("↑", "cursor up")),
+		key.NewBinding(key.WithKeys("down"), key.WithHelp("↓", "cursor down")),
+		key.NewBinding(key.WithKeys(" "), key.WithHelp("space", "select")),
+		key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "next field")),
+	})
 }

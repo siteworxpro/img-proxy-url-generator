@@ -3,6 +3,7 @@ package interactive
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	cbhelp "github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
@@ -21,6 +22,7 @@ type Model struct {
 	err            error
 	focusField     huh.Field
 	inParamsFields bool
+	help           cbhelp.Model
 }
 
 type UrlParam interface {
@@ -61,6 +63,8 @@ func InitialModel(c *cli.Context) Model {
 
 	m.generator = g
 
+	m.help = cbhelp.New()
+
 	return m
 }
 
@@ -74,6 +78,7 @@ func (m Model) initialFields() []huh.Field {
 		params.NewResize(),
 		params.NewMinWidth(),
 		params.NewMinHeight(),
+		params.NewQuality(),
 		params.NewZoom(),
 		params.NewEnlarge(),
 	}

@@ -17,6 +17,10 @@ const (
 	DEF  Format = "default"
 )
 
+func ToPtr(format Format) *Format {
+	return &format
+}
+
 func (g *Generator) StringToFormat(string string) (Format, error) {
 	s := strings.ToLower(string)
 	switch s {

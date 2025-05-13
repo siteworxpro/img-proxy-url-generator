@@ -1,45 +1,84 @@
 package interactive
 
-import "github.com/charmbracelet/huh"
+import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/charmbracelet/huh"
+)
+
+/**
+ * Height
+ */
 
 type Height struct {
-	UrlParam
-	paramValue string
+	paramValue *string
+	field      *huh.Input
+}
+
+func NewHeight() *Height {
+	h := &Height{
+		paramValue: aws.String(""),
+		field: huh.NewInput().
+			Key("h").
+			Description("The height of the image.").
+			Title("Height"),
+	}
+
+	h.field.Value(h.paramValue)
+
+	return h
+}
+
+func (h Height) display() string {
+	return "height"
 }
 
 func (h Height) value() string {
-	return "height"
+	return *h.paramValue
 }
 
 func (h Height) key() string {
 	return "h"
 }
 
-func (h Height) Input() *huh.Input {
-	return huh.NewInput().
-		Key(h.key()).
-		Description("The height of the image.").
-		Title("Height").
-		Value(&h.paramValue)
+func (h Height) Input() huh.Field {
+	return h.field
 }
 
 type Width struct {
-	UrlParam
-	paramValue string
+	paramValue *string
+	field      *huh.Input
 }
 
-func (h Width) value() string {
+/**
+ * Width
+ */
+
+func NewWidth() *Width {
+	w := &Width{
+		paramValue: aws.String(""),
+		field: huh.NewInput().
+			Key("h").
+			Description("The width of the image.").
+			Title("With"),
+	}
+
+	w.field.Value(w.paramValue)
+
+	return w
+}
+
+func (h Width) display() string {
 	return "width"
 }
 
-func (h Width) key() string {
-	return "w"
+func (h Width) value() string {
+	return *h.paramValue
 }
 
-func (h Width) Input() *huh.Input {
-	return huh.NewInput().
-		Key(h.key()).
-		Description("The width of the image.").
-		Title("Width").
-		Value(&h.paramValue)
+func (h Width) key() string {
+	return "h"
+}
+
+func (h Width) Input() huh.Field {
+	return h.field
 }

@@ -3,6 +3,7 @@ package interactive
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/siteworxpro/img-proxy-url-generator/config"
@@ -11,18 +12,21 @@ import (
 )
 
 type Model struct {
-	Form           *huh.Form
+	Fields         []huh.Field
 	generator      *generator.Generator
 	url            *string
 	format         *generator.Format
 	selectedParams *[]UrlParam
 	err            error
+	focusField     huh.Field
+	inParamsFields bool
 }
 
 type UrlParam interface {
 	value() string
+	display() string
 	key() string
-	Input() *huh.Input
+	Input() huh.Field
 }
 
 func InitialModel(c *cli.Context) Model {
@@ -33,49 +37,10 @@ func InitialModel(c *cli.Context) Model {
 		format:         generator.ToPtr(generator.DEF),
 	}
 
-	options := []UrlParam{
-		Height{
-			paramValue: "40",
-		},
-		Width{
-			paramValue: "40",
-		},
-	}
+	fields := make([]huh.Field, 0)
+	fields = append(fields, m.initialFields()...)
 
-	var huhOptions []huh.Option[UrlParam]
-	for _, option := range options {
-		huhOptions = append(huhOptions, huh.NewOption[UrlParam](option.value(), option))
-	}
-
-	form := huh.NewForm(
-		huh.NewGroup(
-			huh.NewInput().
-				Key("imgUrl").
-				Description("The URL of the image to generate a proxy for.").
-				Title("Image URL").
-				Value(m.url).
-				Prompt("Enter the image URL:"),
-
-			huh.NewMultiSelect[UrlParam]().
-				Description("Params to add to the URL.").
-				Options(huhOptions...).
-				Value(m.selectedParams),
-			huh.NewSelect[generator.Format]().
-				Description("Convert the image format.").
-				Options(
-					huh.NewOption[generator.Format]("JPEG", generator.JPG),
-					huh.NewOption[generator.Format]("PNG", generator.PNG),
-					huh.NewOption[generator.Format]("BMP", generator.BMP),
-					huh.NewOption[generator.Format]("Default", generator.DEF),
-				).
-				Key("format").
-				Title("Format").
-				Value(m.format),
-		),
-		m.selectedOptionFields(),
-	).WithShowHelp(false)
-
-	m.Form = form
+	m.Fields = fields
 
 	cfg, _ := config.NewConfig(c.String("config"))
 
@@ -98,20 +63,62 @@ func InitialModel(c *cli.Context) Model {
 	return m
 }
 
-func (m Model) selectedOptionFields() *huh.Group {
+func (m Model) initialFields() []huh.Field {
+
 	fields := make([]huh.Field, 0)
 
-	if m.selectedParams == nil || len(*m.selectedParams) == 0 {
-		return huh.NewGroup(
-			huh.NewText().Description("No params selected.").Title("Params").CharLimit(0),
-		)
+	options := []UrlParam{
+		NewHeight(),
+		NewWidth(),
 	}
 
-	for _, param := range *m.selectedParams {
-		fields = append(fields, param.Input())
+	var huhOptions []huh.Option[UrlParam]
+	for _, option := range options {
+		huhOptions = append(huhOptions, huh.NewOption[UrlParam](option.display(), option))
 	}
 
-	return huh.NewGroup(fields...)
+	fields = append(fields,
+		huh.NewInput().
+			Key("imgUrl").
+			Description("The URL of the image to generate a proxy for.").
+			Title("Image URL").
+			Value(m.url).
+			Prompt("Enter the image URL:"),
+	)
+	fields = append(fields,
+		huh.NewMultiSelect[UrlParam]().
+			Description("Params to add to the URL.").
+			Options(huhOptions...).
+			Value(m.selectedParams).
+			WithKeyMap(&huh.KeyMap{
+				MultiSelect: huh.MultiSelectKeyMap{
+					Up:     key.NewBinding(key.WithKeys("up"), key.WithHelp("up", "up")),
+					Down:   key.NewBinding(key.WithKeys("down"), key.WithHelp("down", "down")),
+					Toggle: key.NewBinding(key.WithKeys(" "), key.WithHelp(" ", "toggle")),
+				},
+			}),
+	)
+
+	fields = append(fields, huh.NewSelect[generator.Format]().
+		Description("Convert the image format.").
+		Options(
+			huh.NewOption[generator.Format]("JPEG", generator.JPG),
+			huh.NewOption[generator.Format]("PNG", generator.PNG),
+			huh.NewOption[generator.Format]("BMP", generator.BMP),
+			huh.NewOption[generator.Format]("Default", generator.DEF),
+		).
+		Key("format").
+		Title("Format").
+		Value(m.format).
+		WithKeyMap(&huh.KeyMap{
+			Select: huh.SelectKeyMap{
+				Up:   key.NewBinding(key.WithKeys("up"), key.WithHelp("up", "up")),
+				Down: key.NewBinding(key.WithKeys("down"), key.WithHelp("down", "down")),
+			},
+		}),
+	)
+
+	return fields
 }
 
 func (m Model) Init() tea.Cmd {

@@ -13,21 +13,30 @@ func (m Model) View() string {
 		Underline(true).
 		Render("Welcome to the img-proxy URL Generator!") + "\n\n"
 
-	if m.Form == nil {
-		return ""
-	}
-
 	if m.err != nil {
 		return output + "Error: " + m.err.Error() + "\n" + "Press Ctrl+C to exit.\n"
 	}
 
-	output = output + m.Form.View() + "\n"
+	for _, field := range m.Fields {
+		output += field.View() + "\n\n"
+	}
+
+	for _, field := range *m.selectedParams {
+		output += field.Input().View() + "\n\n"
+	}
 
 	if *m.url == "" {
 		return output + help()
 	}
 
-	url, _ := m.generator.GenerateUrl(*m.url, []string{}, *m.format)
+	params := make([]string, 0)
+	for _, field := range *m.selectedParams {
+		if field.value() != "" {
+			params = append(params, field.key()+":"+field.value())
+		}
+	}
+
+	url, _ := m.generator.GenerateUrl(*m.url, params, *m.format)
 
 	output += fmt.Sprintf("\nGenerated URL: %s\n\n", lipgloss.NewStyle().
 		Bold(true).

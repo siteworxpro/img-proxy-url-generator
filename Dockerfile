@@ -1,4 +1,4 @@
-FROM siteworxpro/golang:1.24.0 AS build
+FROM siteworxpro/golang:1.24.3 AS build
 
 WORKDIR /app
 
@@ -22,7 +22,5 @@ RUN  adduser -u 1001 -g appuser appuser -D && \
     chown -R appuser:appuser /app
 
 USER 1001
-
-# docker buildx build --push --sbom=true --provenance=true --platform linux/amd64,linux/arm64 -t siteworxpro/img-proxy-url-generator:v1.4.0-grpc .
 
 ENTRYPOINT ["/app/imgproxy", "grpc"]

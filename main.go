@@ -19,11 +19,12 @@ func main() {
 	commands = append(commands, cliCommands.ReportCommand())
 	commands = append(commands, cliCommands.GrpcCommand())
 	commands = append(commands, cliCommands.DecryptCommand())
+	commands = append(commands, cliCommands.Interactive())
 
 	app := &cli.App{
 		Name:           "img-proxy-url-generator",
 		Usage:          "URL Generator for the img proxy service",
-		DefaultCommand: "generate",
+		DefaultCommand: "interactive",
 		Version:        Version,
 		Commands:       commands,
 		Flags: []cli.Flag{

@@ -35,6 +35,17 @@ plain-url=1
 
 ## usage examples
 
+### interactive
+
+```shell
+./imgproxy interactive
+```
+
+![img](./assets/interactive.gif)
+
+
+### command line
+
 generate a plain url with an insecure signature
 ```ini
 [img-proxy]
@@ -134,3 +145,14 @@ curl --location 'http://localhost:8080/generate' \
 }'
 ```
 `https://i.fooo.com/UMkz4OUNw6P9ShLdewuvW3ValMgCt263vZzU5gN57WQ/h:200/sm:1/enc/ECYxMeVBTjRxB7F-jdQ7W_-Fnv4YbmSJIKie-Hdtxd9vsmEKjU1YuWVSzdN97Mod.bmp`
+
+
+## gRPC server
+you can also serve request via a gRPC request
+
+```shell
+./imgproxy grpc
+```
+```
+listening on :9000
+```

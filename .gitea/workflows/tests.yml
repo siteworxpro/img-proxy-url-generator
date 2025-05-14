@@ -10,6 +10,7 @@ jobs:
     env:
       GOPRIVATE: 'git.siteworxpro.com'
       GOPROXY: 'direct'
+      GO_VERSION: '1.24.3'
     name: 🔍 🐹 Go Tests
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +24,7 @@ jobs:
       - name: ⚙️ 🐹 Set up Go Environment
         uses: actions/setup-go@v2
         with:
-          go-version: '1.24.0'
+          go-version: ${{ env.GO_VERSION }}
           cache: true
 
       - name: 📖 🔍 Checkout Repository Code

@@ -33,10 +33,8 @@ jobs:
 
       - name: 📦 📥 Install Dependencies
         run: |
-          cd backend
           go mod download
 
       - name: ✅ 🔍 Run Go Tests
         run: |
-          cd backend
           go test -v ./... -coverprofile=coverage.out

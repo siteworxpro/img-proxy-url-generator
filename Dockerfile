@@ -4,7 +4,7 @@ WORKDIR /app
 
 ADD . .
 
-ENV GOPRIVATE=git.s.int
+ENV GOPRIVATE=git.siteworxpro.com
 ENV GOPROXY=direct
 ENV CGO_ENABLED=0
 

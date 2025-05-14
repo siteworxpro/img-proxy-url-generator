@@ -7,7 +7,7 @@ name: 🏗️✨ Build Workflow
 
 jobs:
   Build:
-    name: 🖥️🔨 Build
+    name: 🖥️ 🔨 Build
     runs-on: ubuntu-latest
     steps:
       - name: 🛡️ 🔒 Add Siteworx CA Certificates

@@ -8,8 +8,6 @@ name: 🧪 ✨ Unit Tests Workflow
 jobs:
   test-go:
     env:
-      GOPRIVATE: 'git.siteworxpro.com'
-      GOPROXY: 'direct'
       GO_VERSION: '1.24.3'
     name: 🔍 🐹 Go Tests
     runs-on: ubuntu-latest

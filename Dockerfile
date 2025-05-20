@@ -23,4 +23,4 @@ RUN  adduser -u 1001 -g appuser appuser -D && \
 
 USER 1001
 
-ENTRYPOINT ["/app/imgproxy", "grpc"]
+ENTRYPOINT ["/app/imgproxy", "server"]

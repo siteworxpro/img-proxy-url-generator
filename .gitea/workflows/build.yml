@@ -33,7 +33,23 @@ jobs:
       - name: 🐳 🔨 Build Backend Container
         uses: docker/build-push-action@v6
         with:
+          sbom: true
+          provenance: true
           context: .
           dockerfile: Dockerfile
           push: true
           tags: siteworxpro/img-proxy-url-generator:${{ gitea.ref_name }}
+
+      - name: Replace entrypoint
+        run: |
+          sed -i '' 's/server/grpc/g' Dockerfile      
+
+      - name: 🐳 🔨 Build Backend Container
+        uses: docker/build-push-action@v6
+        with:
+          sbom: true
+          provenance: true
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: siteworxpro/img-proxy-url-generator:${{ gitea.ref_name }}-grpc

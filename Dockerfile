@@ -12,7 +12,7 @@ RUN go mod tidy && go build -o imgproxy .
 
 FROM alpine:latest AS runtime
 
-EXPOSE 9000
+EXPOSE 8080
 
 WORKDIR /app
 

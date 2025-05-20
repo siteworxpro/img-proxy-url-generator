@@ -33,6 +33,7 @@ jobs:
       - name: Replace entrypoint
         run: |
           sed -i 's/server/grpc/g' Dockerfile      
+          sed -i 's/8080/9000/g' Dockerfile      
 
       - name: 🐳 🔨 Build Grpc Container
         uses: docker/build-push-action@v6

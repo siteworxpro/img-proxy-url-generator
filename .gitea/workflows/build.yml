@@ -12,7 +12,6 @@ jobs:
     steps:
       - name: 🛡️ 🔒 Add Siteworx CA Certificates
         run: |
-          apt update && apt install -yq ca-certificates curl
           curl -Ls https://siteworxpro.com/hosted/Siteworx+Root+CA.pem -o /usr/local/share/ca-certificates/sw.crt
           update-ca-certificates
 

@@ -41,9 +41,8 @@ func (g *Generator) GenerateUrl(file string, params []string, format Format) (st
 
 	if params == nil || len(params) == 0 || params[0] == "" {
 		params = []string{"raw:1"}
-	} else {
-		params = append(params, "sm:1")
 	}
+	params = append(params, "sm:1")
 
 	if PathPrefix != "" {
 		file = PathPrefix + file

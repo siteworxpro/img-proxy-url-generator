@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"io"
 )
 
@@ -13,6 +14,23 @@ func pkcs7pad(data []byte, blockSize int) []byte {
 	padLen := blockSize - len(data)%blockSize
 	padding := bytes.Repeat([]byte{byte(padLen)}, padLen)
 	return append(data, padding...)
+}
+
+func pkcs7unpad(data []byte) ([]byte, error) {
+	length := len(data)
+	if length == 0 {
+		return nil, errors.New("invalid padding size")
+	}
+	padLen := int(data[length-1])
+	if padLen > length || padLen == 0 {
+		return nil, errors.New("invalid padding")
+	}
+	for _, v := range data[length-padLen:] {
+		if int(v) != padLen {
+			return nil, errors.New("invalid padding")
+		}
+	}
+	return data[:length-padLen], nil
 }
 
 func (g *Generator) Decrypt(s string) (string, error) {
@@ -32,7 +50,12 @@ func (g *Generator) Decrypt(s string) (string, error) {
 
 	cbc.CryptBlocks(cryptText, cryptText)
 
-	return string(cryptText), err
+	decrypted, err := pkcs7unpad(cryptText)
+	if err != nil {
+		return "", err
+	}
+
+	return string(decrypted), err
 }
 
 func (g *Generator) generateBaseAesEncUrl(file []byte) (string, error) {

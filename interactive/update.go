@@ -5,95 +5,104 @@ import (
 	"github.com/charmbracelet/huh"
 )
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// Helper: find index of current focusField in a given field slice.
+//
+//goland:noinspection GoMixedReceiverTypes
+func (m *Model) findCurrentFieldIndex(fields []huh.Field) int {
+	for i, field := range fields {
+		if field == m.focusField {
+			return i
+		}
+	}
+	return -1
+}
 
-	if m.focusField == nil {
-		m.Fields[0].Focus()
-		m.focusField = m.Fields[0]
+// Helper: blur current, focus next (wraps to 0)
+//
+//goland:noinspection GoMixedReceiverTypes
+func (m *Model) focusNextField(fields []huh.Field) {
+	index := m.findCurrentFieldIndex(fields)
+	next := (index + 1) % len(fields)
+	m.focusField.Blur()
+	m.focusField = fields[next]
+	m.focusField.Focus()
+}
+
+// Helper: focus a specific field by index
+//
+//goland:noinspection GoMixedReceiverTypes
+func (m *Model) focusFieldByIndex(fields []huh.Field, index int) {
+	if index >= 0 && index < len(fields) {
+		m.focusField.Blur()
+		m.focusField = fields[index]
+		m.focusField.Focus()
+	}
+}
+
+// Helper: get all selected param fields as a flat slice
+//
+//goland:noinspection GoMixedReceiverTypes
+func (m *Model) selectedParamFields() []huh.Field {
+	var fields []huh.Field
+	for _, param := range *m.selectedParams {
+		fields = append(fields, param.Input()...)
+	}
+	return fields
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	model := m // copy, since Bubble Tea prefers value receivers, but we'll operate on &model internally
+
+	if model.focusField == nil && len(model.Fields) > 0 {
+		model.Fields[0].Focus()
+		model.focusField = model.Fields[0]
 	}
 
-	if msg, ok := msg.(tea.KeyMsg); ok {
-		switch msg.String() {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch keyMsg.String() {
 		case "tab":
-			if m.focusField != nil {
+			mainFields := model.Fields
+			paramFields := model.selectedParamFields()
 
-				index := -1
-
-				selectedParamFields := make([]huh.Field, 0)
-				for _, field := range *m.selectedParams {
-					for _, f := range field.Input() {
-						selectedParamFields = append(selectedParamFields, f)
-					}
-				}
-
-				if m.inParamsFields {
-					for i, field := range selectedParamFields {
-						if field == m.focusField {
-							index = i
-							break
-						}
-					}
-				} else {
-					for i, field := range m.Fields {
-						if field == m.focusField {
-							index = i
-							break
-						}
-					}
-				}
-
-				// if the field is not found, return
+			if model.inParamsFields && len(paramFields) > 0 {
+				index := model.findCurrentFieldIndex(paramFields)
 				if index == -1 {
-					return m, nil
+					break
 				}
-
-				// if the field is the last one, and we have params selected go to the param fields
-				if !m.inParamsFields && index == len(m.Fields)-1 && len(selectedParamFields) > 0 {
-					m.focusField.Blur()
-					m.inParamsFields = true
-					paramsFields := selectedParamFields
-					m.focusField = paramsFields[0]
-					m.focusField.Focus()
-
-					// if the field is the last one, and we have params selected go to the first non params field
-				} else if m.inParamsFields && index == len(selectedParamFields)-1 {
-					m.focusField.Blur()
-					m.inParamsFields = false
-					m.focusField = m.Fields[0]
-					m.focusField.Focus()
-
-					// if not in the params fields and the field is the last one, go to the first one
-				} else if index == len(m.Fields)-1 && !m.inParamsFields {
-					m.focusField.Blur()
-					m.focusField = m.Fields[0]
-					m.focusField.Focus()
+				if index == len(paramFields)-1 {
+					// Last param field: cycle to main fields
+					model.inParamsFields = false
+					model.focusFieldByIndex(mainFields, 0)
 				} else {
-					// otherwise, go to the next field
-					m.focusField.Blur()
-					if m.inParamsFields {
-						m.focusField = selectedParamFields[index+1]
-					} else {
-						m.focusField = m.Fields[index+1]
-					}
-					m.focusField.Focus()
+					model.focusNextField(paramFields)
+				}
+			} else {
+				index := model.findCurrentFieldIndex(mainFields)
+				if index == -1 {
+					break
+				}
+				if index == len(mainFields)-1 && len(paramFields) > 0 {
+					// Last main field & params exist: go to params
+					model.inParamsFields = true
+					model.focusFieldByIndex(paramFields, 0)
+				} else {
+					model.focusNextField(mainFields)
 				}
 			}
 		case "ctrl+c", "esc":
-			return m, tea.Quit
+			return model, tea.Quit
 		case "enter":
-			return m, nil
+			return model, nil
 		default:
-			if m.focusField != nil {
-				md, cmd := m.focusField.(huh.Field).Update(msg)
-
+			if model.focusField != nil {
+				md, cmd := model.focusField.(huh.Field).Update(msg)
 				if md != nil {
-					m.focusField = md.(huh.Field)
+					model.focusField = md.(huh.Field)
 				}
-
-				return m, cmd
+				return model, cmd
 			}
 		}
 	}
-
-	return m, nil
+	return model, nil
 }

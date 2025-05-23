@@ -53,11 +53,11 @@ func (g *Generator) GenerateUrl(file string, params []string, format Format) (st
 	var url string
 	var err error
 	if config.GetConfig().Generator.PlainUrl {
-		url, _ = g.generatePlainUrl(file)
+		url, err = g.generatePlainUrl(file)
 	} else if g.encryptionKey != nil {
 		url, err = g.generateBaseAesEncUrl([]byte(file))
 	} else {
-		url, _ = g.generateBase64Url([]byte(file))
+		url, err = g.generateBase64Url([]byte(file))
 	}
 
 	if err != nil {
